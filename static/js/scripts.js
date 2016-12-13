@@ -4,8 +4,8 @@
     function initialize() {
         socket = io();
 
-        socket.on("led", function() {
-            console.log("led event triggered");
+        socket.on("pressure", function(value, message) {
+            console.log(arguments);
         });
     }
 

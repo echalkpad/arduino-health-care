@@ -1,60 +1,51 @@
 const five = require("johnny-five");
 const AbstractBoard = require("../AbstractBoard");
 
+const TEMPERATURE_APPROX = 50;
+
 class Reader extends AbstractBoard {
     onReady() {
-        // var self = this;
-        // this.temperatures = [];
-        //
-        // this.powerPin1 = new five.Pin(2);
-        // this.powerPin2 = new five.Pin(3);
-        // this.powerPin3 = new five.Pin(4);
-        //
-        // this.powerPin1.high();
-        // this.powerPin2.high();
-        // this.powerPin3.high();
-        //
-        // this.groundPin1 = new five.Pin(5);
-        // this.groundPin1.low();
-        //
-        // this.thermo = new five.Thermometer({
-        //     controller: "LM35",
-        //     pin: "A0",
-        //     freq: 200
-        // });
-        //
-        // this.thermo.on("change", function() {
-        //     self.temperatures.push(this.celsius);
-        //
-        //     if(self.temperatures.length > 30) {
-        //         self.temperatures.shift();
-        //     }
-        //
-        //     let temp = 0;
-        //     for(let i = 0; i < self.temperatures.length; i++) {
-        //         temp += self.temperatures[i];
-        //     }
-        //
-        //     temp = temp / self.temperatures.length;
-        //
-        //     console.log("TEMP: " + temp);
-        // });
-        //
-        // this.light = new five.Light({
-        //     pin: "A2",
-        //     freq: 200
-        // });
-        // this.light.on("change", function() {
-        //     // console.log(this.level * 100);
-        // });
-        //
-        // this.pressure = new five.Sensor({
-        //     pin: "A4",
-        //     freq: 200
-        // });
-        // this.pressure.on("change", function() {
-        //    // console.log("PRESSURE: " + this.scaleTo(0, 100));
-        // });
+        this.temperatures = [];
+
+        this.thermo = new five.Thermometer({
+            controller: "LM35",
+            pin: "A2",
+            freq: 200
+        });
+
+        this.thermo.on("change", () => {
+            this.temperatures.push(this.thermo.celsius);
+
+            if(this.temperatures.length > TEMPERATURE_APPROX) {
+                this.temperatures.shift();
+            }
+
+            let temp = 0;
+            for(let i = 0; i < this.temperatures.length; i++) {
+                temp += this.temperatures[i];
+            }
+
+            temp = temp / this.temperatures.length;
+
+            console.log("TEMP: " + temp);
+        });
+
+        this.light = new five.Light({
+            pin: "A0",
+            freq: 200
+        });
+        this.light.on("change", function() {
+            console.log("LIGHT:" + this.level * 100);
+        });
+
+        this.pressure = new five.Sensor({
+            pin: "A4",
+            freq: 200
+        });
+        this.pressure.on("change", function() {
+            app.getIo().emit("pressure", this.scaleTo(0, 100), "hello");
+           console.log("PRESSURE: " + this.scaleTo(0, 100));
+        });
 
         this.temperaturIndicator = new five.Led.RGB({
             pins: {
@@ -77,8 +68,7 @@ class Reader extends AbstractBoard {
         this.temperaturIndicator.intensity(50);
         this.lightIndicator.intensity(50);
 
-        this.temperaturIndicator.off();
-        this.lightIndicator.off();
+        this.servo = new five.Servo(12);
     }
 
     onExit() {
