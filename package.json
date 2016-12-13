@@ -1,0 +1,20 @@
+{
+  "name": "Arduino-Healthcare",
+  "version": "1.0.0",
+  "description": "Healthcare System for your Workspace",
+  "main": "main.js",
+  "repository": "",
+  "keywords": [
+    "Arduino",
+    "Healthcare",
+    "Workspace"
+  ],
+  "author": "DavidRiedl",
+  "dependencies": {
+    "jquery": "*",
+    "johnny-five": "*",
+    "backbone-events-standalone": "*",
+    "socket.io": "*",
+    "express": "*"
+  }
+}
