@@ -4,10 +4,14 @@ const events = require("backbone-events-standalone");
 class AbstractBoard {
     constructor(id, port) {
         try {
-            this.board = new five.Board({
-                id: id,
-                port: port
-            });
+            if(id && port) {
+                this.board = new five.Board({
+                    id: id,
+                    port: port
+                });
+            } else {
+                this.board = new five.Board();
+            }
 
             this.board.on("ready", () => {
                 this.onReady();

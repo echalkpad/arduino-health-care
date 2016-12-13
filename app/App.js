@@ -54,7 +54,7 @@ class App {
          * setup arduino boards
          * @type {Reader}
          */
-        this.reader = new Reader("R", this.config.arduino.ports.reader);
+        this.arduino = new Reader();
     }
 
     getIo() {
