@@ -15,6 +15,7 @@
     "johnny-five": "*",
     "backbone-events-standalone": "*",
     "socket.io": "*",
-    "express": "*"
+    "express": "*",
+    "color": "*"
   }
 }

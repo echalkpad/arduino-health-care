@@ -1,10 +1,16 @@
 const five = require("johnny-five");
 const AbstractBoard = require("../AbstractBoard");
+const events = require("backbone-events-standalone");
 
 const TEMPERATURE_APPROX = 50;
+const PRESSURE_MIN = 0.15;
 
 class Reader extends AbstractBoard {
     onReady() {
+        /**
+         * initialize thermo, approximate values
+         * due to sensor inconsistencies
+         */
         this.temperatures = [];
 
         this.thermo = new five.Thermometer({
@@ -27,26 +33,34 @@ class Reader extends AbstractBoard {
 
             temp = temp / this.temperatures.length;
 
-            console.log("TEMP: " + temp);
+            this.temperature = temp;
+
+            this.trigger("temperature", this.getTemperature());
         });
 
+        /**
+         * initialize light sensor
+         */
         this.light = new five.Light({
             pin: "A0",
             freq: 200
         });
-        this.light.on("change", function() {
-            console.log("LIGHT:" + this.level * 100);
+
+        this.light.on("change", () => {
+            this.trigger("light", this.getLight());
         });
 
+        /**
+         * initialize pressure sensor
+         */
         this.pressure = new five.Sensor({
             pin: "A4",
             freq: 200
         });
-        this.pressure.on("change", function() {
-            app.getIo().emit("pressure", this.scaleTo(0, 100), "hello");
-           console.log("PRESSURE: " + this.scaleTo(0, 100));
-        });
 
+        /**
+         * initialize indicators
+         */
         this.temperaturIndicator = new five.Led.RGB({
             pins: {
                 red: 6,
@@ -65,15 +79,37 @@ class Reader extends AbstractBoard {
             isAnode: true
         });
 
-        this.temperaturIndicator.intensity(50);
-        this.lightIndicator.intensity(50);
-
-        this.servo = new five.Servo(12);
+        this.servo = new five.Servo({
+            pin: 12
+        });
     }
 
-    onExit() {
+    getTemperature() {
+        return this.temperature;
+    }
 
+    getLight() {
+        return this.light.level;
+    }
+
+    isWorking() {
+        return this.pressure.value > PRESSURE_MIN;
+    }
+
+    setTemperaturIndicator(color) {
+        this.temperaturIndicator.color(color);
+    }
+
+    setLightIndicator(color) {
+        this.lightIndicator.color(color);
+    }
+
+    setHealthCare(value) {
+        console.log(value);
+        this.servo.to(value * 180 / 100);
     }
 }
+
+events.mixin(Reader.prototype);
 
 module.exports = Reader;

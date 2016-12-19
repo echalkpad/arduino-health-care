@@ -3,7 +3,6 @@ const express = require("express");
 const http = require("http");
 const io = require("socket.io");
 const path = require("path");
-const Reader = require("./reader/Reader");
 
 class App {
     constructor() {
@@ -25,6 +24,9 @@ class App {
     }
 
     start() {
+        const Reader = require("./reader/Reader");
+        const HealthCare = require("./healthcare/HealthCare");
+        
         /**
          * setup express
          */
@@ -55,6 +57,9 @@ class App {
          * @type {Reader}
          */
         this.arduino = new Reader();
+        
+        this.care = new HealthCare(this.arduino);
+        this.care.start();
     }
 
     getIo() {
