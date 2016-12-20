@@ -1,12 +1,15 @@
 const five = require("johnny-five");
-const AbstractBoard = require("../AbstractBoard");
-const events = require("backbone-events-standalone");
+const AbstractBoard = require("./AbstractBoard");
 
 const TEMPERATURE_APPROX = 50;
 const PRESSURE_MIN = 0.15;
 
-class Reader extends AbstractBoard {
+class Arduino extends AbstractBoard {
     onReady() {
+        this.trigger("ready");
+
+        this.working = false;
+
         /**
          * initialize thermo, approximate values
          * due to sensor inconsistencies
@@ -22,12 +25,12 @@ class Reader extends AbstractBoard {
         this.thermo.on("change", () => {
             this.temperatures.push(this.thermo.celsius);
 
-            if(this.temperatures.length > TEMPERATURE_APPROX) {
+            if (this.temperatures.length > TEMPERATURE_APPROX) {
                 this.temperatures.shift();
             }
 
             let temp = 0;
-            for(let i = 0; i < this.temperatures.length; i++) {
+            for (let i = 0; i < this.temperatures.length; i++) {
                 temp += this.temperatures[i];
             }
 
@@ -56,6 +59,15 @@ class Reader extends AbstractBoard {
         this.pressure = new five.Sensor({
             pin: "A4",
             freq: 200
+        });
+
+        this.pressure.on("change", () => {
+            let working = this.isWorking();
+
+            if(working != this.working) {
+                this.working = working;
+                this.trigger("working", this.isWorking());
+            }
         });
 
         /**
@@ -105,11 +117,8 @@ class Reader extends AbstractBoard {
     }
 
     setHealthCare(value) {
-        console.log(value);
         this.servo.to(value * 180 / 100);
     }
 }
 
-events.mixin(Reader.prototype);
-
-module.exports = Reader;
+module.exports = Arduino;

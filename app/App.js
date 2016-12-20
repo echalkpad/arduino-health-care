@@ -19,12 +19,18 @@ class App {
         return path.join.apply(null, args);
     }
     
-    error(message) {
-        console.error(message);
+    error() {
+        console.error.apply(null, arguments);
+    }
+
+    log() {
+        if(this.config.debug) {
+            console.log.apply(null, arguments);
+        }
     }
 
     start() {
-        const Reader = require("./reader/Reader");
+        const Arduino = require("./arduino/Arduino");
         const HealthCare = require("./healthcare/HealthCare");
         
         /**
@@ -53,13 +59,14 @@ class App {
         this.io = io(this.http);
 
         /**
-         * setup arduino boards
-         * @type {Reader}
+         * setup arduino
          */
-        this.arduino = new Reader();
-        
+        this.arduino = new Arduino();
         this.care = new HealthCare(this.arduino);
-        this.care.start();
+
+        this.arduino.once("ready", () => {
+            this.care.start();
+        });
     }
 
     getIo() {
