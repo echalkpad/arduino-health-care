@@ -20,6 +20,50 @@ class HealthCare {
             new LightFactor(this.controller),
             new TemperatureFactor(this.controller)
         ];
+
+        this.messages = [{
+            sent: false,
+            sendAfter: 10,
+            title: "Healthcare",
+            body: "You have been working for {{time}} minutes. Your Healthvalue is {{health}}."
+        }, {
+            sent: false,
+            sendAfter: 50,
+            title: "Halftime",
+            body: "You have been working for {{time}} minutes. Your Healthvalue is {{health}}."
+        }, {
+            sent: false,
+            sendAfter: 75,
+            title: "Almost there",
+            body: "You have been working for {{time}} minutes. Your Healthvalue is {{health}}."
+        }, {
+            sent: false,
+            sendAfter: 100,
+            title: "Break time",
+            body: "You have been working straight for {{time}} minutes. Your Healthvalue is {{health}}."
+        }];
+    }
+    
+    checkMessages() {
+        for(let i = 0; i < this.messages.length; i++) {
+            let message = this.messages[i];
+            
+            if(message.sendAfter <= this.healthValue && !message.sent && this.timetracker.isWorking()) {
+                message.sent = true;
+                
+                this.sendMessage(message.title, message.body);
+            }
+
+            if(message.sent && message.sendAfter > this.healthValue && !this.timetracker.isWorking()) {
+                message.sent = false;
+            }
+        }
+    }
+
+    sendMessage(title, body) {
+        let icon = "/static/img/healthcare.png";
+        
+        app.getIo().emit("notification", icon, title, body.replace("{{time}}", this.timetracker.forMinutes()).replace("{{health}}", 100 - this.healthValue));
     }
 
     start() {
@@ -44,9 +88,9 @@ class HealthCare {
         }
 
         if(this.timetracker.isWorking()) {
-            app.log("working for " + this.timetracker.for() + " seconds");
+            app.log("working for " + this.timetracker.forSeconds() + " seconds");
         } else {
-            app.log("taking a break for " + this.timetracker.for() + " seconds");
+            app.log("taking a break for " + this.timetracker.forSeconds() + " seconds");
         }
 
         if(app.config.printSensorValues) {
@@ -56,9 +100,11 @@ class HealthCare {
             }
         }
         
-        this.healthValue = Math.max(0, Math.min(100, this.healthValue + inc));
+        this.healthValue = Math.round(Math.max(0, Math.min(100, this.healthValue + inc)) * 100) / 100;
 
         app.log("health-status = " + this.healthValue);
+        
+        this.checkMessages();
 
         this.controller.setHealthCare(this.healthValue);
     }

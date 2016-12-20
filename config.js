@@ -15,10 +15,10 @@ module.exports = {
     
     healthcare: {
         // limit of time to work in one go in minutes
-        workLimit: 180,
+        workLimit: 1,
         
         // amount of break time needed in minutes
-        breakTime: 30,
+        breakTime: 0.5,
         
         // loop interval in seconds
         loopInterval: 2,

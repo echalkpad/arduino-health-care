@@ -14,7 +14,7 @@ class TimeTracker extends AbstractObserver {
     }
 
     now() {
-        return new Date().getTime() / 1000;
+        return Math.round(new Date().getTime() / 1000);
     }
 
     onChange(isWorking) {
@@ -35,8 +35,14 @@ class TimeTracker extends AbstractObserver {
         return this.working;
     }
 
-    for() {
+    forSeconds() {
         return this.now() - this.changedAt;
+    }
+
+    forMinutes() {
+        let seconds = this.now() - this.changedAt;
+
+        return Math.round(seconds / 60 * 100) / 100;
     }
 }
 

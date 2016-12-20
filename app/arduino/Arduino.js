@@ -117,7 +117,7 @@ class Arduino extends AbstractBoard {
     }
 
     setHealthCare(value) {
-        this.servo.to(value * 180 / 100);
+        this.servo.to(Math.round(Math.round(value) * 180 / 100));
     }
 }
 
