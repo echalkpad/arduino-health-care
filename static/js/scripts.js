@@ -2,10 +2,18 @@ app = (function ($) {
     var app = {
         createTimeline: function () {
             this.$window = $(window);
+            this.$chart = $("#chart");
             this.temperatureData = new TimeSeries();
             this.lightData = new TimeSeries();
 
-            this.chart = new SmoothieChart();
+            this.chart = new SmoothieChart({
+                yRangeFunction: function(range) {
+                    return {
+                        max: 100,
+                        min: 0
+                    }
+                }
+            });
 
             this.chart.addTimeSeries(this.temperatureData, {
                 strokeStyle: 'rgba(0, 255, 0, 1)',
@@ -19,19 +27,21 @@ app = (function ($) {
                 lineWidth: 3
             });
 
-            this.chart.streamTo(document.getElementById("chart"), 500);
+            this.chart.streamTo(this.$chart[0], 500);
 
             this.socket.on("temperature", function (value) {
                 this.temperatureData.append(new Date().getTime(), value);
             }.bind(this));
 
             this.socket.on("light", function (value) {
-                this.lightData.append(new Date().getTime(), value);
+                this.lightData.append(new Date().getTime(), value * 100);
             }.bind(this));
 
             this.$window.on("resize", function() {
-                
+                this.$chart.attr("width", this.$chart.parent().width());
             }.bind(this));
+
+            this.$chart.attr("width", this.$chart.parent().width());
         },
 
         initializeHealthBar: function () {
