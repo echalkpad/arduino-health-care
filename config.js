@@ -18,7 +18,7 @@ module.exports = {
         workLimit: 1,
         
         // amount of break time needed in minutes
-        breakTime: 0.5,
+        breakTime: 0.8,
         
         // loop interval in seconds
         loopInterval: 2,

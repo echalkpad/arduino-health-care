@@ -1,23 +1,68 @@
-(function($) {
-    var socket;
+app = (function ($) {
+    var app = {
+        createTimeline: function () {
+            this.$window = $(window);
+            this.temperatureData = new TimeSeries();
+            this.lightData = new TimeSeries();
 
-    function initialize() {
-        socket = io();
+            this.chart = new SmoothieChart();
 
-        var graphData = new TimeSeries();
+            this.chart.addTimeSeries(this.temperatureData, {
+                strokeStyle: 'rgba(0, 255, 0, 1)',
+                fillStyle: 'rgba(0, 255, 0, 0.2)',
+                lineWidth: 3
+            });
 
-        socket.on("pressure", function(value, message) {
-            console.log(arguments);
-            $('.progress-bar').css('width', arguments[0]+'%').attr('aria-valuenow', arguments[0]);
-            graphData.append(new Date().getTime(), arguments[0]);
-        });
-        createTimeline();
-        function createTimeline() {
-            var chart = new SmoothieChart();
-            chart.addTimeSeries(graphData, { strokeStyle: 'rgba(0, 255, 0, 1)', fillStyle: 'rgba(0, 255, 0, 0.2)', lineWidth: 4 });
-            chart.streamTo(document.getElementById("chart"), 500);
+            this.chart.addTimeSeries(this.lightData, {
+                strokeStyle: 'rgba(0, 0, 255, 1)',
+                fillStyle: 'rgba(0, 0, 255, 0.2)',
+                lineWidth: 3
+            });
+
+            this.chart.streamTo(document.getElementById("chart"), 500);
+
+            this.socket.on("temperature", function (value) {
+                this.temperatureData.append(new Date().getTime(), value);
+            }.bind(this));
+
+            this.socket.on("light", function (value) {
+                this.lightData.append(new Date().getTime(), value);
+            }.bind(this));
+
+            this.$window.on("resize", function() {
+                
+            }.bind(this));
+        },
+
+        initializeHealthBar: function () {
+            this.$healthBar = $(".progress");
+            this.$health = $("[data-health]");
+
+            this.socket.on("health", function (value) {
+                this.$health.text(value);
+                this.$healthBar.attr("value", value);
+
+                if (value >= 60) {
+                    this.$healthBar.removeClass("progress-warning progress-danger").addClass("progress-success");
+                } else if (value >= 30 && value < 60) {
+                    this.$healthBar.removeClass("progress-danger progress-success").addClass("progress-warning");
+                } else {
+                    this.$healthBar.removeClass("progress-warning progress-success").addClass("progress-danger");
+                }
+            }.bind(this));
+        },
+
+        initialize: function () {
+            this.socket = io();
+
+            this.initializeHealthBar();
+            this.createTimeline();
         }
-    }
+    };
 
-    $(initialize);
+    $(function () {
+        app.initialize();
+    });
+
+    return app;
 })($);

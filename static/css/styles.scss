@@ -1,0 +1,23 @@
+@import "bootstrap/variables";
+
+$black-opac: rgba(0, 0, 0, 0.5);
+
+body {
+  background: $gray-lightest;
+}
+
+header {
+  background: white;
+  box-shadow: 0 0 10px 0 $black-opac;
+
+  .logo {
+    margin-top: -0.6rem;
+    display: inline-block;
+    height: 2rem;
+    width: auto;
+  }
+
+  .title {
+    display: inline-block;
+  }
+}

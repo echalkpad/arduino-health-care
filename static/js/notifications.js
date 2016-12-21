@@ -1,6 +1,6 @@
 (function($) {
 
-    var socket, permitted = false, notification;
+    var permitted = false, notification;
 
     function showNotification(icon, title, body) {
         if(!permitted) return;
@@ -35,9 +35,7 @@
             permitted = true;
         }
 
-        socket = io();
-
-        socket.on("notification", showNotification);
+        app.socket.on("notification", showNotification);
     }
 
     $(initialize);
