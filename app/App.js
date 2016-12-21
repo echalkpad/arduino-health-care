@@ -3,7 +3,6 @@ const express = require("express");
 const http = require("http");
 const io = require("socket.io");
 const path = require("path");
-const Reader = require("./reader/Reader");
 
 class App {
     constructor() {
@@ -20,11 +19,20 @@ class App {
         return path.join.apply(null, args);
     }
     
-    error(message) {
-        console.error(message);
+    error() {
+        console.error.apply(null, arguments);
+    }
+
+    log() {
+        if(this.config.debug) {
+            console.log.apply(null, arguments);
+        }
     }
 
     start() {
+        const Arduino = require("./arduino/Arduino");
+        const HealthCare = require("./healthcare/HealthCare");
+        
         /**
          * setup express
          */
@@ -51,10 +59,14 @@ class App {
         this.io = io(this.http);
 
         /**
-         * setup arduino boards
-         * @type {Reader}
+         * setup arduino
          */
-        this.arduino = new Reader();
+        this.arduino = new Arduino();
+        this.care = new HealthCare(this.arduino);
+
+        this.arduino.once("ready", () => {
+            this.care.start();
+        });
     }
 
     getIo() {

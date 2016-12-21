@@ -16,6 +16,7 @@
     "backbone-events-standalone": "*",
     "socket.io": "*",
     "express": "*",
-    "smoothie": "*"
+    "smoothie": "*",
+    "color": "*"
   }
 }
