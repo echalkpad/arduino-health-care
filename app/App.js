@@ -72,6 +72,10 @@ class App {
     getIo() {
         return this.io;
     }
+
+    getSocket() {
+        return this.socket;
+    }
 }
 
 events.mixin(App.prototype);

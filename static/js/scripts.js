@@ -65,7 +65,7 @@ app = (function ($) {
 
         initialize: function () {
             this.socket = io();
-
+            
             this.initializeHealthBar();
             this.createTimeline();
         }

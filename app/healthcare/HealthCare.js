@@ -9,10 +9,23 @@ const LOOP_INTERVAL = app.config.healthcare.loopInterval; // in seconds
 const LINEAR_INCREASE = 100 / (LINEAR_LIMIT / LOOP_INTERVAL); // increase per loop
 const LINEAR_DECREASE = -1 * 100 / (LINEAR_BREAK / LOOP_INTERVAL); // decrease per loop
 
+const notiMessages = [
+    'I\'m intimidated by the fear of being average.',
+    'Just be yourself, there is no one better.',
+    'I never want to change so much that people can\'t recognize me.',
+    'I suffer from girlnextdooritis where the guy is friends with you and that\'s it',
+    'People are people and sometimes we change our minds.',
+    'Darling, I’m a nightmare dressed like a daydream.',
+    'I could dance to this beat forevermore.',
+    'I make the moves up as I go.',
+    'This is the golden age of something good and right and real.'
+];
+
 class HealthCare {
     constructor(controller) {
         this.healthValue = 0;
         this.controller = controller;
+        this.isExtendingWorkingTime = false;
 
         this.timetracker = new TimeTracker(this.controller);
 
@@ -20,6 +33,20 @@ class HealthCare {
             new LightFactor(this.controller),
             new TemperatureFactor(this.controller)
         ];
+
+        app.getIo().on("connection", (socket) => {
+            socket.on("add:score", (value) => {
+                if(this.isExtendingWorkingTime) return;
+
+                this.isExtendingWorkingTime = true;
+
+                this.healthValue -= value;
+
+                setTimeout(() => {
+                    this.isExtendingWorkingTime = false;
+                }, 300000);
+            });
+        });
 
         this.controller
             .on("light", (light) => {
@@ -35,23 +62,23 @@ class HealthCare {
         this.messages = [{
             sent: false,
             sendAfter: 10,
-            title: "Healthcare",
-            body: "You have been working for {{time}} minutes. Your Healthvalue is {{health}}."
+            title: "Yoda says ...",
+            //body: "You have been working for {{time}} minutes. Your Healthvalue is {{health}}."
         }, {
             sent: false,
             sendAfter: 50,
-            title: "Halftime",
-            body: "You have been working for {{time}} minutes. Your Healthvalue is {{health}}."
+            title: "Yoda says ...",
+            //body: "You have been working for {{time}} minutes. Your Healthvalue is {{health}}."
         }, {
             sent: false,
             sendAfter: 75,
-            title: "Almost there",
-            body: "You have been working for {{time}} minutes. Your Healthvalue is {{health}}."
+            title: "Yoda says ...",
+            //body: "You have been working for {{time}} minutes. Your Healthvalue is {{health}}."
         }, {
             sent: false,
             sendAfter: 100,
-            title: "Break time",
-            body: "You have been working straight for {{time}} minutes. Your Healthvalue is {{health}}."
+            title: "Yoda says ...",
+            body: "Much to learn you still have young padavan. But now take a break you have to."
         }];
     }
 
@@ -62,7 +89,9 @@ class HealthCare {
             if (message.sendAfter <= this.healthValue && !message.sent && this.timetracker.isWorking()) {
                 message.sent = true;
 
-                this.sendMessage(message.title, message.body);
+                let body = message.body || notiMessages[Math.floor(Math.random() * 10)];
+
+                this.sendMessage(message.title, body);
             }
 
             if (message.sent && message.sendAfter > this.healthValue && !this.timetracker.isWorking()) {
@@ -74,7 +103,7 @@ class HealthCare {
     sendMessage(title, body) {
         let icon = "/static/img/healthcare.png";
 
-        app.getIo().emit("notification", icon, title, body.replace("{{time}}", this.timetracker.forMinutes()).replace("{{health}}", 100 - this.healthValue));
+        app.getIo().emit("notification", icon, title, body.replace("{{time}}", this.timetracker.forMinutes()).replace("{{health}}", 100 - Math.round(this.healthValue)));
     }
 
     start() {
