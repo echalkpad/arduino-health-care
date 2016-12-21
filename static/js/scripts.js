@@ -42,6 +42,7 @@ app = (function ($) {
             }.bind(this));
 
             this.$chart.attr("width", this.$chart.parent().width());
+            this.$chart.attr("height", 200);
         },
 
         initializeHealthBar: function () {

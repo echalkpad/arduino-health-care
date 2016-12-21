@@ -24,6 +24,7 @@
 
     <link rel="stylesheet" href="/static/css/bootstrap/bootstrap-flex.css"/>
     <link rel="stylesheet" href="/static/css/styles.css"/>
+    <link rel="stylesheet" href="/static/css/style2.css"/>
 </head>
 <body>
 
@@ -43,7 +44,7 @@
 
 <main class="container-fluid p-2">
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-block">
                     <h5 class="card-title">Your Health</h5>
@@ -66,16 +67,42 @@
                     <canvas id="chart" height="200"></canvas>
                 </div>
             </div>
-        </div>
 
-        <div class="col-md-6">
+
+        <!--<div class="col-md-6">-->
             <!-- place image code here -->
+            <div class="card">
+                <div class="card-block">
+                    <h5 class="card-title">This is you</h5>
+                </div>
+                <img alt="Yoda" src="/static/img/ready.png">
+
+                <section class="welcome">
+
+                <button class="start">Start</button>
+            </section>
+            <section class="ui">
+
+                <div class="character">
+                    <div class="current-level"></div>
+                    <p>Level: 100%</p>
+                </div>
+                <div class="button-bar">
+                    <button class="sun" data-score="200">Go out in the sun</button>
+                    <button class="happy" data-score="500">Listen to Taylor Swift</button>
+                    <button class="lazy" data-score="-400">No movement</button>
+                </div>
+            </section>
+            </div>
+
         </div>
+    <!--    </div>-->
     </div>
 </main>
 
 <script src="/static/js/socket.io.min.js"></script>
 <script src="/static/js/jquery.min.js"></script>
+<script src="/static/js/main.js"></script>
 <script src="/static/js/bootstrap.min.js"></script>
 <script src="/static/js/smoothie.js"></script>
 <script src="/static/js/scripts.js"></script>
