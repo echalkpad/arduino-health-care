@@ -6,6 +6,10 @@ body {
   background: $gray-lightest;
 }
 
+main {
+  max-width: 1400px;
+}
+
 header {
   background: white;
   box-shadow: 0 0 10px 0 $black-opac;
@@ -25,4 +29,20 @@ header {
 #chart {
   height: auto !important;
   width: auto;
+}
+
+.img-indicator {
+  width: 2rem;
+  height: 2rem;
+}
+
+.indicator {
+  height: 2rem;
+  width: 2rem;
+  background: $brand-danger;
+  border-radius: 50%;
+
+  &.connected {
+    background: $brand-success;
+  }
 }

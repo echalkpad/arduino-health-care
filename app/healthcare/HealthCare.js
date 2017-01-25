@@ -44,7 +44,7 @@ class HealthCare {
 
                 setTimeout(() => {
                     this.isExtendingWorkingTime = false;
-                }, 300000);
+                }, app.config.healthcare.workLimit * 60 * 1000 / 4);
             });
         });
 
@@ -63,17 +63,17 @@ class HealthCare {
             sent: false,
             sendAfter: 10,
             title: "Yoda says ...",
-            //body: "You have been working for {{time}} minutes. Your Healthvalue is {{health}}."
+            body: "You have been working for {{time}} minutes. Your Healthvalue is {{health}}."
         }, {
             sent: false,
             sendAfter: 50,
             title: "Yoda says ...",
-            //body: "You have been working for {{time}} minutes. Your Healthvalue is {{health}}."
+            body: "You have been working for {{time}} minutes. Your Healthvalue is {{health}}."
         }, {
             sent: false,
             sendAfter: 75,
             title: "Yoda says ...",
-            //body: "You have been working for {{time}} minutes. Your Healthvalue is {{health}}."
+            body: "You have been working for {{time}} minutes. Your Healthvalue is {{health}}."
         }, {
             sent: false,
             sendAfter: 100,
@@ -101,6 +101,8 @@ class HealthCare {
     }
 
     sendMessage(title, body) {
+        if(!title || !body) return;
+
         let icon = "/static/img/healthcare.png";
 
         app.getIo().emit("notification", icon, title, body.replace("{{time}}", this.timetracker.forMinutes()).replace("{{health}}", 100 - Math.round(this.healthValue)));

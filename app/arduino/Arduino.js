@@ -2,7 +2,7 @@ const five = require("johnny-five");
 const AbstractBoard = require("./AbstractBoard");
 
 const TEMPERATURE_APPROX = 50;
-const PRESSURE_MIN = 0.15;
+const PRESSURE_MIN = 400;
 
 class Arduino extends AbstractBoard {
     onReady() {

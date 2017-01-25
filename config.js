@@ -1,5 +1,5 @@
 module.exports = {
-    debug: false,
+    debug: true,
     printSensorValues: false,
 
     http: {
