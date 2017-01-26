@@ -21,7 +21,7 @@ module.exports = {
         breakTime: 0.8,
         
         // loop interval in seconds
-        loopInterval: 2,
+        loopInterval: 0.5,
 
         /**
          * factor setup

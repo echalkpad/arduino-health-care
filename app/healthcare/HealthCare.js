@@ -36,7 +36,7 @@ class HealthCare {
 
         app.getIo().on("connection", (socket) => {
             socket.on("add:score", (value) => {
-                if(this.isExtendingWorkingTime) return;
+                if (this.isExtendingWorkingTime) return;
 
                 this.isExtendingWorkingTime = true;
 
@@ -78,7 +78,8 @@ class HealthCare {
             sent: false,
             sendAfter: 100,
             title: "Yoda says ...",
-            body: "Much to learn you still have young padavan. But now take a break you have to."
+            body: "Much to learn you still have young padavan. But now take a break you have to.",
+            ignoreRandom: true
         }];
     }
 
@@ -89,7 +90,13 @@ class HealthCare {
             if (message.sendAfter <= this.healthValue && !message.sent && this.timetracker.isWorking()) {
                 message.sent = true;
 
-                let body = message.body || notiMessages[Math.floor(Math.random() * 10)];
+                let body;
+
+                if (message.ignoreRandom) {
+                    body = message.body;
+                } else {
+                    body = notiMessages[Math.floor(Math.random() * 10)] + "\n" + message.body;
+                }
 
                 this.sendMessage(message.title, body);
             }
@@ -101,7 +108,7 @@ class HealthCare {
     }
 
     sendMessage(title, body) {
-        if(!title || !body) return;
+        if (!title || !body) return;
 
         let icon = "/static/img/healthcare.png";
 
