@@ -1,0 +1,38 @@
+body {
+  background: #f7f7f9; }
+
+main {
+  max-width: 1400px; }
+
+header {
+  background: white;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5); }
+  header .logo {
+    margin-top: -0.6rem;
+    display: inline-block;
+    height: 2rem;
+    width: auto; }
+  header .title {
+    display: inline-block; }
+
+#chart {
+  height: auto !important;
+  width: auto; }
+
+.img-indicator {
+  width: 2rem;
+  height: 2rem; }
+
+.indicator {
+  height: 2rem;
+  width: 2rem;
+  background: #d9534f;
+  border-radius: 50%; }
+  .indicator.connected {
+    background: #5cb85c; }
+
+.you {
+  width: 100%;
+  max-height: 300px; }
+
+/*# sourceMappingURL=styles.css.map */

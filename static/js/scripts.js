@@ -67,15 +67,15 @@ app = (function ($) {
 
                 if (value >= 60) {
                     this.$healthBar.removeClass("progress-warning progress-danger").addClass("progress-success");
-                    this.$you.attr("src", this.imagePath + "good.png");
+                    this.$you.attr("src", this.imagePath + "good.svg");
                 } else if (value >= 30 && value < 60) {
                     this.$healthBar.removeClass("progress-danger progress-success").addClass("progress-warning");
-                    this.$you.attr("src", this.imagePath + "moderate.png");
+                    this.$you.attr("src", this.imagePath + "moderate.svg");
                 } else if (value > 0) {
                     this.$healthBar.removeClass("progress-warning progress-success").addClass("progress-danger");
-                    this.$you.attr("src", this.imagePath + "bad.png");
+                    this.$you.attr("src", this.imagePath + "bad.svg");
                 } else {
-                    this.$you.attr("src", this.imagePath + "dead.png");
+                    this.$you.attr("src", this.imagePath + "dead.svg");
                 }
             }.bind(this));
         },
