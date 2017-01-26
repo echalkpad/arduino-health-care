@@ -3,6 +3,7 @@ const AbstractBoard = require("./AbstractBoard");
 
 const TEMPERATURE_APPROX = 50;
 const PRESSURE_MIN = 400;
+const SERVO_MAX = 100;
 
 class Arduino extends AbstractBoard {
     onReady() {
@@ -117,7 +118,7 @@ class Arduino extends AbstractBoard {
     }
 
     setHealthCare(value) {
-        this.servo.to(Math.round(Math.round(value) * 180 / 100));
+        this.servo.to(Math.round(SERVO_MAX - Math.round(value) * SERVO_MAX / 100));
     }
 }
 
