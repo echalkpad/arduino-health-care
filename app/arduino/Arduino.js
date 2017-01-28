@@ -95,6 +95,8 @@ class Arduino extends AbstractBoard {
         this.servo = new five.Servo({
             pin: 12
         });
+
+        this.piezo = new five.Piezo(7);
     }
 
     getTemperature() {
@@ -119,6 +121,13 @@ class Arduino extends AbstractBoard {
 
     setHealthCare(value) {
         this.servo.to(Math.round(SERVO_MAX - Math.round(value) * SERVO_MAX / 100));
+    }
+
+    play(song) {
+        this.piezo.play({
+            song: song,
+            tempo: 45
+        });
     }
 }
 

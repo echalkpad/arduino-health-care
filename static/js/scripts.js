@@ -42,7 +42,7 @@ app = (function ($) {
                 } else {
                     this.$light.text("bad");
                 }
-                
+
                 this.lightData.append(new Date().getTime(), value * 100);
             }.bind(this));
 
@@ -80,10 +80,10 @@ app = (function ($) {
             }.bind(this));
         },
 
-        initializeButtons: function() {
+        initializeButtons: function () {
             var self = this;
 
-            $("[data-score]").on("click", function() {
+            $("[data-score]").on("click", function () {
                 self.socket.emit("add:score", $(this).data("score"));
             });
         },
@@ -91,25 +91,34 @@ app = (function ($) {
         initialize: function () {
             this.imagePath = "/static/img/";
             this.socket = io();
-            
+
             this.$connection = $("[data-connection]");
             this.$status = $("[data-status]");
+            this.$time = $("[data-since]");
 
-            this.socket.on("connect", function() {
-                this.$connection.addClass("connected");
-            }.bind(this));
-            
-            this.socket.on("disconnect", function() {
-                this.$connection.removeClass("connected");
-            }.bind(this));
+            this.socket
+                .on("connect", function () {
+                    this.$connection.addClass("connected");
+                }.bind(this))
 
-            this.socket.on("working", function(isWorking) {
-                if(isWorking) {
-                    this.$status.attr("src", this.imagePath + "working.png")
-                } else {
-                    this.$status.attr("src", this.imagePath + "not-working.png");
-                }
-            }.bind(this));
+                .on("disconnect", function () {
+                    this.$connection.removeClass("connected");
+                }.bind(this))
+
+                .on("working", function (isWorking) {
+                    if (isWorking) {
+                        this.$status.attr("src", this.imagePath + "working.png")
+                    } else {
+                        this.$status.attr("src", this.imagePath + "not-working.png");
+                    }
+                }.bind(this))
+
+                .on("since", function (timeInSeconds) {
+                    var minutes = Math.floor(timeInSeconds / 60);
+                    var seconds = timeInSeconds - (minutes * 60);
+
+                    this.$time.text(minutes + ":" + (seconds < 10 ? "0" + seconds : seconds));
+                }.bind(this));
 
             this.initializeHealthBar();
             this.createTimeline();

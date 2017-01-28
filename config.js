@@ -1,5 +1,5 @@
 module.exports = {
-    debug: true,
+    debug: false,
     printSensorValues: false,
 
     http: {
@@ -15,10 +15,10 @@ module.exports = {
     
     healthcare: {
         // limit of time to work in one go in minutes
-        workLimit: 1,
+        workLimit: 0.5,
         
         // amount of break time needed in minutes
-        breakTime: 0.8,
+        breakTime: 0.3,
         
         // loop interval in seconds
         loopInterval: 0.5,

@@ -6,8 +6,8 @@ const LINEAR_LIMIT = app.config.healthcare.workLimit * 60; // 3 hours in seconds
 const LINEAR_BREAK = app.config.healthcare.breakTime * 60; // half an hour in seconds
 const LOOP_INTERVAL = app.config.healthcare.loopInterval; // in seconds
 
-const LINEAR_INCREASE = 100 / (LINEAR_LIMIT / LOOP_INTERVAL); // increase per loop
-const LINEAR_DECREASE = -1 * 100 / (LINEAR_BREAK / LOOP_INTERVAL); // decrease per loop
+const LINEAR_INCREASE = -1 * 100 / (LINEAR_LIMIT / LOOP_INTERVAL); // increase per loop
+const LINEAR_DECREASE = 100 / (LINEAR_BREAK / LOOP_INTERVAL); // decrease per loop
 
 const notiMessages = [
     'I\'m intimidated by the fear of being average.',
@@ -23,7 +23,7 @@ const notiMessages = [
 
 class HealthCare {
     constructor(controller) {
-        this.healthValue = 0;
+        this.healthValue = 100;
         this.controller = controller;
         this.isExtendingWorkingTime = false;
 
@@ -40,12 +40,16 @@ class HealthCare {
 
                 this.isExtendingWorkingTime = true;
 
-                this.healthValue -= value;
+                this.healthValue += value;
 
                 setTimeout(() => {
                     this.isExtendingWorkingTime = false;
                 }, app.config.healthcare.workLimit * 60 * 1000 / 4);
             });
+
+            socket.emit("working", this.timetracker.isWorking());
+            socket.emit("health", this.getHealthValue());
+            socket.emit("since", this.timetracker.forSeconds());
         });
 
         this.controller
@@ -55,13 +59,13 @@ class HealthCare {
             .on("temperature", (temperature) => {
                 app.getIo().emit("temperature", temperature);
             })
-            .on("working", (isWorking) => {
+            .on("tracker", (isWorking) => {
                 app.getIo().emit("working", isWorking);
             });
 
         this.messages = [{
             sent: false,
-            sendAfter: 10,
+            sendAfter: 90,
             title: "Yoda says ...",
             body: "You have been working for {{time}} minutes. Your Healthvalue is {{health}}."
         }, {
@@ -71,23 +75,91 @@ class HealthCare {
             body: "You have been working for {{time}} minutes. Your Healthvalue is {{health}}."
         }, {
             sent: false,
-            sendAfter: 75,
+            sendAfter: 25,
             title: "Yoda says ...",
             body: "You have been working for {{time}} minutes. Your Healthvalue is {{health}}."
         }, {
             sent: false,
-            sendAfter: 100,
+            sendAfter: 0,
             title: "Yoda says ...",
             body: "Much to learn you still have young padavan. But now take a break you have to.",
             ignoreRandom: true
         }];
+
+        this.music = [{
+            played: false,
+            song: [
+                ["E5", 1 / 16],
+                [null, 1/ 16],
+                ["E5", 1 / 16],
+                [null, 1 / 8],
+                ["E5", 1 / 16],
+                [null, 2 / 16],
+
+                ["C5", 1 / 16],
+                [null, 1 / 16],
+                ["E5", 1 / 8],
+                [null, 1 / 16],
+                ["G5", 1 / 16],
+                [null, 3 / 8],
+                ["G4", 1 / 8]
+            ],
+            playAfter: 100
+        }, {
+            played: false,
+            song: [
+                ["C5", 1 / 16],
+                ["C#5", 1 / 16],
+                ["D5", 1 / 8],
+                [null, 3 / 4],
+
+                ["B4", 1 / 8],
+                ["F5", 1 / 8],
+                [null, 1 / 8],
+
+                ["F5", 1 / 16],
+                [null, 1 / 16],
+                ["F5", 1 / 16],
+                [null, 1 / 8],
+
+                ["E5", 1 / 8],
+                [null, 1 / 16],
+
+                ["D5", 1 / 8],
+                [null, 1 / 16],
+
+                ["C5", 1 / 8],
+                ["E4", 1 / 8],
+                [null, 1 / 8],
+
+                ["E4", 1 / 8],
+                ["C4", 1 / 8]
+            ],
+            playAfter: 0
+        }];
+    }
+
+    checkMusic() {
+        for(let i = 0; i < this.music.length; i++) {
+            let music = this.music[i];
+            
+            if(music.playAfter >= this.healthValue && !music.played && this.timetracker.isWorking()) {
+                music.played = true;
+                console.log("playing music");
+                this.controller.play(music.song);
+            }
+            
+            if(music.played && music.playAfter <= this.healthValue && !this.timetracker.isWorking()) {
+                music.played = false;
+            }
+        }
     }
 
     checkMessages() {
         for (let i = 0; i < this.messages.length; i++) {
             let message = this.messages[i];
 
-            if (message.sendAfter <= this.healthValue && !message.sent && this.timetracker.isWorking()) {
+            if (message.sendAfter >= this.healthValue && !message.sent && this.timetracker.isWorking()) {
                 message.sent = true;
 
                 let body;
@@ -95,13 +167,13 @@ class HealthCare {
                 if (message.ignoreRandom) {
                     body = message.body;
                 } else {
-                    body = notiMessages[Math.floor(Math.random() * 10)] + "\n" + message.body;
+                    body = notiMessages[Math.floor(Math.random() * notiMessages.length)] + "\n" + message.body;
                 }
 
                 this.sendMessage(message.title, body);
             }
 
-            if (message.sent && message.sendAfter > this.healthValue && !this.timetracker.isWorking()) {
+            if (message.sent && message.sendAfter <= this.healthValue && !this.timetracker.isWorking()) {
                 message.sent = false;
             }
         }
@@ -112,7 +184,7 @@ class HealthCare {
 
         let icon = "/static/img/healthcare.png";
 
-        app.getIo().emit("notification", icon, title, body.replace("{{time}}", this.timetracker.forMinutes()).replace("{{health}}", 100 - Math.round(this.healthValue)));
+        app.getIo().emit("notification", icon, title, body.replace("{{time}}", this.timetracker.forMinutes()).replace("{{health}}", this.healthValue));
     }
 
     start() {
@@ -149,12 +221,14 @@ class HealthCare {
             }
         }
 
-        this.healthValue = Math.round(Math.max(0, Math.min(100, this.healthValue + inc)) * 100) / 100;
+        this.healthValue = Math.round(Math.max(0, Math.min(100, this.healthValue + inc)));
 
         app.log("health-status = " + this.healthValue);
-        app.getIo().emit("health", 100 - Math.round(this.healthValue));
+        app.getIo().emit("health", this.healthValue);
+        app.getIo().emit("since", this.timetracker.forSeconds());
 
         this.checkMessages();
+        this.checkMusic();
 
         this.controller.setHealthCare(this.healthValue);
     }

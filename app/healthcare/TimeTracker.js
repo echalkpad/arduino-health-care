@@ -27,6 +27,8 @@ class TimeTracker extends AbstractObserver {
                 this.working = isWorking;
 
                 this.changedAt = this.now();
+                
+                this.controller.trigger("tracker", this.working);
             }
         }, 2000);
     }
